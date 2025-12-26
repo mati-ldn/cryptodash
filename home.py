@@ -1,25 +1,29 @@
 import streamlit as st
-import requests
+import sys
+from streamlit import runtime
+from streamlit.web import cli as stcli
 from datetime import datetime
 
-st.set_page_config(page_title="Crypto Mock App", layout="centered")
+from cryptodash.crypto import get_btc_price_usd
 
-st.title("🚀 Streamlit Crypto Mock App")
 
-st.markdown("This is a mock app to test deployment.")
+def main():
+    st.set_page_config(page_title="Crypto Mock App", layout="centered")
 
-# Simple BTC price fetch (US-safe)
-url = "https://api.coingecko.com/api/v3/simple/price"
-params = {
-    "ids": "bitcoin",
-    "vs_currencies": "usd"
-}
+    st.title("🚀 Streamlit Crypto App")
+    st.write("Mock app to test deployment from GitHub")
+    try:
+        price = get_btc_price_usd()
+        st.metric("Bitcoin Price (USD)", f"${price:,}")
+        st.caption(f"Updated: {datetime.utcnow()} UTC")
+    except Exception as e:
+        st.error("Failed to fetch Bitcoin price")
+        st.text(str(e))
 
-try:
-    response = requests.get(url, params=params, timeout=10)
-    price = response.json()["bitcoin"]["usd"]
-    st.metric("Bitcoin Price (USD)", f"${price:,}")
-    st.caption(f"Last updated: {datetime.utcnow()} UTC")
-except Exception as e:
-    st.error("Failed to fetch price")
-    st.text(e)
+
+if __name__ == '__main__':
+    if runtime.exists():
+        main()
+    else:
+        sys.argv = ['streamlit', 'run', 'home.py']
+        sys.exit(stcli.main())
