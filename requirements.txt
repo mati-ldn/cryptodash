@@ -1,5 +1,7 @@
-streamlit
-requests
 pytest
 requests-mock
 cachetools
+streamlit>=1.30.0
+pandas>=1.5.3
+plotly>=5.20.0
+requests>=2.30.0
