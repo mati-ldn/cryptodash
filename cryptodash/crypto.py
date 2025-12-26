@@ -1,20 +1,9 @@
 import requests
-import logging
 import pandas as pd
 
-# Configure module-level logger
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+from .logging_config import get_logger
 
-# Optional: add console handler if not already configured
-if not logger.handlers:
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+logger = get_logger(__name__)
 
 
 class CryptoMarket:

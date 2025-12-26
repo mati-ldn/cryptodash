@@ -5,11 +5,15 @@ from streamlit.web import cli as stcli
 from datetime import datetime
 
 from cryptodash.crypto import CryptoMarket
+from cryptodash.logging_config import get_logger
+
+logger = get_logger(__name__)
 
 
 class CryptoDashboard:
 
     def run(self):
+        logger.info('Starting CryptoDashboard')
         if runtime.exists():
             self.layout()
         else:
