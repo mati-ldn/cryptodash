@@ -1,15 +1,19 @@
 import requests
 import pandas as pd
+from cachetools import TTLCache, cached
 
 from .utils.logging_config import get_logger
 
 logger = get_logger(__name__)
+
+api_cache = TTLCache(maxsize=32, ttl=300)
 
 
 class CryptoMarket:
     BASE_URL = 'https://api.coingecko.com/api/v3'
     vs_currency = 'usd'
 
+    @cached(api_cache)
     def get_top_coins(self, n: int = 10) -> pd.DataFrame:
         '''
         Fetch top `n` coins by market capitalization.

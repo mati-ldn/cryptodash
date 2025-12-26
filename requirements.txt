@@ -2,3 +2,4 @@ streamlit
 requests
 pytest
 requests-mock
+cachetools
