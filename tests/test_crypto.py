@@ -65,3 +65,31 @@ def test_get_top_coins_http_error(monkeypatch):
 
     with pytest.raises(Exception):
         cm.get_top_coins()
+
+
+def test_get_top_coins_includes_daily_change(monkeypatch):
+    mock_data = [
+        {
+            "name": "Bitcoin",
+            "symbol": "btc",
+            "current_price": 50000,
+            "price_change_24h": 500,
+            "price_change_percentage_24h": 1.0,
+            "market_cap": 1_000_000_000,
+        }
+    ]
+
+    class MockResponse:
+        def json(self):
+            return mock_data
+
+        def raise_for_status(self):
+            pass
+
+    monkeypatch.setattr("requests.get", lambda *a, **k: MockResponse())
+
+    cm = CryptoMarket()
+    df = cm.get_top_coins(n=1)
+
+    assert "24h Change (%)" in df.columns
+    assert df.iloc[0]["24h Change (%)"] == 1.0

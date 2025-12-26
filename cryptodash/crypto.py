@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 
-from .logging_config import get_logger
+from .utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
@@ -11,32 +11,33 @@ class CryptoMarket:
     vs_currency = 'usd'
 
     def get_top_coins(self, n: int = 10) -> pd.DataFrame:
-        """
+        '''
         Fetch top `n` coins by market capitalization.
         Returns a list of dicts with keys: id, symbol, name, current_price, market_cap
-        """
-        url = f"{self.BASE_URL}/coins/markets"
+        '''
+        url = f'{self.BASE_URL}/coins/markets'
         params = {
-            "vs_currency": self.vs_currency,
-            "order": "market_cap_desc",
-            "per_page": n,
-            "page": 1,
+            'vs_currency': self.vs_currency,
+            'order': 'market_cap_desc',
+            'per_page': n,
+            'page': 1,
         }
-        logger.info(f"Fetching top {n} coins from {url}")
+        logger.info(f'Fetching top {n} coins from {url}')
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
 
-        logger.info(f"Successfully fetched {len(data)} coins")
+        logger.info(f'Successfully fetched {len(data)} coins')
 
         df = pd.DataFrame(
             [
                 {
-                    "id": coin["id"],
-                    "symbol": coin["symbol"],
-                    "name": coin["name"],
-                    "current_price": coin["current_price"],
-                    "market_cap": coin["market_cap"],
+                    'id': coin['id'],
+                    'symbol': coin['symbol'],
+                    'name': coin['name'],
+                    'current_price': coin['current_price'],
+                    '24h Change (%)': coin['price_change_percentage_24h'],
+                    'market_cap': coin['market_cap'],
                 }
                 for coin in data
             ]
