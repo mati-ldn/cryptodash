@@ -1,1 +1,1 @@
-App to monitor crypto prices
+streamlit run home.py
