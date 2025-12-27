@@ -25,7 +25,11 @@ class CryptoDashboard:
 
     def layout(self):
         st.set_page_config(page_title='Crypto Dashboard', layout='centered')
+        self.header()
+        self._layout()
+        self.footer()
 
+    def header(self):
         cols = st.columns([3, 1])
 
         with cols[0]:
@@ -38,26 +42,36 @@ class CryptoDashboard:
                 pass
             timestamp = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')
             st.write(f'{timestamp} UTC')
-        vw = CryptoViewer()
 
-        cols = st.columns(2)
-        with cols[0]:
-            fig = vw.bar()
-            st.plotly_chart(fig, use_container_width=True)
-
-        with cols[1]:
-            fig = vw.pie()
-            st.plotly_chart(fig, use_container_width=True)
-
-        df = vw.data
-        df = format_numeric_dataframe(
-            df, column_formats={'market_cap': '{:,.0f}'}
-        )
-        st.dataframe(df)
-
+    def footer(self):
         cols = st.columns(6)
         with cols[-1]:
             st.write('MB :fr:')
+
+    def _layout(self):
+        vw = CryptoViewer()
+
+        tabs = st.tabs(['Main', 'Data'])
+
+        with tabs[0]:
+            cols = st.columns(2)
+            with cols[0]:
+                fig = vw.bar()
+                st.plotly_chart(fig, use_container_width=True)
+
+            with cols[1]:
+                fig = vw.pie()
+                st.plotly_chart(fig, use_container_width=True)
+            df = vw.summary()
+            df = format_numeric_dataframe(
+                df, column_formats={'market_cap': '{:,.0f}'}
+            )
+            st.dataframe(df)
+
+        with tabs[1]:
+            df = vw.data
+            df = format_numeric_dataframe(df)
+            st.dataframe(df)
 
 
 if __name__ == '__main__':

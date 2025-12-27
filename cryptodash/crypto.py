@@ -34,22 +34,8 @@ class CryptoMarket(RedisDataFrameLoader):
         logger.info(f'Successfully fetched {len(data)} coins')
 
         timestamp = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')
-        df = pd.DataFrame(
-            [
-                {
-                    'id': coin['id'],
-                    'symbol': coin['symbol'],
-                    'name': coin['name'],
-                    'current_price': coin['current_price'],
-                    'price_change_percentage_24h': coin[
-                        'price_change_percentage_24h'
-                    ],
-                    'market_cap': coin['market_cap'],
-                    'timestamp': timestamp,
-                }
-                for coin in data
-            ]
-        )
+        df = pd.DataFrame(data)
+        df['timestamp'] = timestamp
         return df
 
 

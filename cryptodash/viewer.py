@@ -10,6 +10,22 @@ class CryptoViewer:
     def __init__(self):
         self.data = CryptoMarket().load()
 
+    def summary(self):
+        df = self.data
+        cols = [
+            'id',
+            'symbol',
+            'name',
+            'current_price',
+            'market_cap',
+            'price_change_percentage_24h',
+            'last_updated',
+        ]
+        df = df[cols]
+        # for display, too large
+        df = df.rename({'price_change_percentage_24h': 'px_chg_24h'}, axis=1)
+        return df.set_index('id')
+
     def pie(self):
         df = self.data
         fig = px.pie(
@@ -32,9 +48,7 @@ class CryptoViewer:
             color_continuous_scale=px.colors.diverging.RdYlGn,
             title="24h Returns (%)",
         )
-        fig.update_traces(
-            texttemplate='%{text:.2f}%', textposition='outside'
-        )
+        fig.update_traces(texttemplate='%{text:.2f}%', textposition='outside')
         return fig
 
 
