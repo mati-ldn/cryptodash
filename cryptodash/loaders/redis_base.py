@@ -4,6 +4,7 @@ import pandas as pd
 from abc import ABC, abstractmethod
 from typing import Any
 import redis
+from redis.exceptions import ConnectionError, TimeoutError
 from cryptodash.utils.logging_config import get_logger
 
 logger = get_logger()
@@ -22,27 +23,42 @@ class RedisDataFrameLoader(ABC):
         self.redis = self._create_redis_client()
 
     def _create_redis_client(self) -> redis.Redis:
-        return redis.Redis(
-            host="localhost",
-            port=6379,
-            db=0,
-            socket_connect_timeout=1,
-            socket_timeout=1,
-        )
+        try:
+            client = redis.Redis(
+                host="localhost",
+                port=6379,
+                db=0,
+                socket_connect_timeout=1,
+                socket_timeout=1,
+            )
+            client.ping()  # 🔴 force connection test
+            logger.info("Redis connected successfully")
+            return client
+        except (ConnectionError, TimeoutError) as e:
+            logger.warning("Redis unavailable, caching disabled")
+            return None
 
     def load(self, **kwargs) -> pd.DataFrame:
         cache_key = self._cache_key(**kwargs)
 
-        cached = self.redis.get(cache_key)
-        if cached is not None:
-            logger.info(f"REDIS HIT [{cache_key}]")
-            return pickle.loads(cached)
+        if self.redis:
+            try:
+                cached = self.redis.get(cache_key)
+                if cached is not None:
+                    logger.info(f"REDIS HIT [{cache_key}]")
+                    return pickle.loads(cached)
+            except Exception as e:
+                logger.warning("Redis read failed, bypassing cache", exc_info=e)
 
-        logger.info(f"REDIS MISS [{cache_key}]")
+        # Always load fresh if cache miss or redis unavailable
         df = self._load(**kwargs)
 
-        self.redis.setex(cache_key, self.ttl, pickle.dumps(df))
-        logger.info(f"REDIS SET [{cache_key}] ttl={self.ttl}s")
+        if self.redis:
+            try:
+                self.redis.setex(cache_key, self.ttl, pickle.dumps(df))
+                logger.info(f"REDIS SET [{cache_key}] ttl={self.ttl}s")
+            except Exception as e:
+                logger.warning("Redis write failed", exc_info=e)
 
         return df
 
