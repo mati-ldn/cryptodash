@@ -8,7 +8,7 @@ from cryptodash.crypto import CryptoMarket
 class CryptoViewer:
 
     def __init__(self):
-        self.data = CryptoMarket().get_top_coins()
+        self.data = CryptoMarket().load()
 
     def pie(self):
         df = self.data
