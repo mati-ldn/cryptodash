@@ -26,7 +26,7 @@ def format_numeric_dataframe(
         col: column_formats.get(col, '{:,.2f}') for col in numeric_cols
     }
 
-    styler = df.style.format(format_map).applymap(
+    styler = df.style.format(format_map).map(
         lambda x: 'color: red' if isinstance(x, (int, float)) and x < 0 else '',
         subset=numeric_cols,
     )

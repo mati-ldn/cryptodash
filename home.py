@@ -1,8 +1,8 @@
 import streamlit as st
+import pandas as pd
 import sys
 from streamlit import runtime
 from streamlit.web import cli as stcli
-from datetime import datetime
 import plotly.express as px
 
 from cryptodash.viewer import CryptoViewer
@@ -24,11 +24,20 @@ class CryptoDashboard:
             sys.exit(stcli.main())
 
     def layout(self):
-        st.set_page_config(page_title='Crypto Mock App', layout='centered')
+        st.set_page_config(page_title='Crypto Dashboard', layout='centered')
 
-        st.title(':classical_building: Crypto Dashboard')
-        st.write('Data from coingecko')
+        cols = st.columns([3, 1])
 
+        with cols[0]:
+            st.title(':classical_building: Crypto Dashboard')
+            st.write('Data from coingecko')
+
+        with cols[1]:
+            if st.button("Refresh"):
+                # automatic re run on click
+                pass
+            timestamp = pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')
+            st.write(f'{timestamp} UTC')
         vw = CryptoViewer()
 
         cols = st.columns(2)
@@ -41,9 +50,10 @@ class CryptoDashboard:
             st.plotly_chart(fig, use_container_width=True)
 
         df = vw.data
-        df = format_numeric_dataframe(df)
+        df = format_numeric_dataframe(
+            df, column_formats={'market_cap': '{:,.0f}'}
+        )
         st.dataframe(df)
-        st.caption(f'Updated: {datetime.utcnow()} UTC')
 
         cols = st.columns(6)
         with cols[-1]:

@@ -26,9 +26,9 @@ class CryptoViewer:
         fig = px.bar(
             df,
             x='symbol',
-            y="24h Change (%)",
-            text="24h Change (%)",
-            color="24h Change (%)",
+            y="price_change_percentage_24h",
+            text="price_change_percentage_24h",
+            color="price_change_percentage_24h",
             color_continuous_scale=px.colors.diverging.RdYlGn,
             title="24h Returns (%)",
         )
